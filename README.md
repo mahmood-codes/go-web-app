@@ -280,7 +280,7 @@ Example:
 
 ![Docker Hub](project_images/docker-hub.png)
 
-![Argo CD](images/argocd-dashboard.png)
+![Argo CD](project_images/argocd-dashboard.png)
 
 ![Application](project_images/app.png)
 

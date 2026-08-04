@@ -8,6 +8,8 @@ on:
     paths-ignore:
       - 'README.md'
       - 'helm/**'
+      - 'project_images/**'
+      
 
 jobs:
   build:
