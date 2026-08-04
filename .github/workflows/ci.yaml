@@ -1,0 +1,93 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'README.md'
+      - 'helm/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      # Compile the Go application to verify it builds successfully.
+      - name: Build the Go application
+        run: go build -o go-web-app
+
+      # Run the full test suite after the build succeeds.
+      - name: Run tests
+        run: go test ./...
+
+  # Run lint checks after the build and test job completes successfully.
+  codequality:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.56.2
+
+  # Publish the validated image to Docker Hub.
+  push-to-dockerhub:
+    runs-on: ubuntu-latest
+    needs: codequality
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/go-web-app:${{ github.run_id }}
+
+  # Reflect the new image tag in the Helm values file and persist it back to the repo.
+  update-newtag-in-helm-chart:
+    runs-on: ubuntu-latest
+    needs: push-to-dockerhub
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.TOKEN }}
+
+      - name: Update tag in Helm chart
+        run: |
+          sed -i 's/tag: .*/tag: "${{ github.run_id }}"/' helm/go-web-app-chart/values.yaml
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.email "mahmood.k.acc@gmail.com"
+          git config --global user.name "mahmood-codes"
+          git add helm/go-web-app-chart/values.yaml
+          git diff --cached --quiet || git commit -m "Update image tag to ${{ github.run_id }}"
+          git push

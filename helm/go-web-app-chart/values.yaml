@@ -1,0 +1,7 @@
+replicaCount: 1
+
+image:
+  repository: abhishekf5/go-web-app
+  tag: "10139272621"
+  pullPolicy: IfNotPresent
+
