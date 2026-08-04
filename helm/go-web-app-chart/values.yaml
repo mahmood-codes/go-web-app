@@ -1,7 +1,6 @@
 replicaCount: 1
 
 image:
-  repository: abhishekf5/go-web-app
+  repository: mahmoodkhan20/go-web-app
   tag: "30870593555"
   pullPolicy: IfNotPresent
-
