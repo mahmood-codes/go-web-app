@@ -248,33 +248,7 @@ Running Application
 
 📸 Screenshots
 
-Add your screenshots here.
 
-Suggested screenshots:
-
-Repository
-
-GitHub Actions successful run
-
-Docker Hub image tags
-
-EKS cluster
-
-Kubernetes Pods
-
-Kubernetes Services
-
-NGINX Ingress
-
-Helm chart
-
-Argo CD Dashboard
-
-Argo CD Sync Status
-
-Running application
-
-Example:
 
 ![GitHub Actions](project_images/ci.png)
 
